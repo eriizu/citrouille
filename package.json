@@ -1,0 +1,22 @@
+{
+    "name": "citrouille",
+    "version": "1.0.0",
+    "scripts": {
+        "build": "tsc",
+        "start": "node --unhandled-rejections=strict dist/index.js",
+        "dev": "ts-node src/index.ts"
+    },
+    "description": "Un bot Discord pour le serveur d'acekid",
+    "main": "src/index.ts",
+    "license": "MIT",
+    "private": true,
+    "dependencies": {
+        "discord-akairo": "^8.0.0",
+        "discord.js": "^12.2.0",
+        "mongoose": "^5.9.13"
+    },
+    "devDependencies": {
+        "@types/node": "^13.13.5",
+        "typescript": "^3.8.3"
+    }
+}
