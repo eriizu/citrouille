@@ -20,4 +20,5 @@ RUN yarn --prod
 
 COPY --from=build /build/dist /app/dist
 
+
 CMD [ "yarn", "start" ]
