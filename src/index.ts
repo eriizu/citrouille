@@ -30,7 +30,12 @@ client.login(process.env.CITROUILLE_DISCORD_TOKEN);
 
 import { loadCommands } from "./loadCommands";
 
-const ncmds = loadCommands();
+let ncmds: command.Command[];
+try {
+    ncmds = loadCommands();
+} catch {
+    ncmds = null;
+}
 
 import * as command from "./commands";
 import { isReplyError } from "./ReplyError";
