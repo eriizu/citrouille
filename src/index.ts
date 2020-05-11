@@ -73,7 +73,7 @@ client.on("message", async (msg) => {
     }
 
     let split = msg.content.split(" ");
-    if (!split.length) {
+    if (!split.length || !ncmds) {
         return;
     } else if (split[0].indexOf("!")) {
         let prefixSplit = split[0].split("!");
