@@ -162,8 +162,6 @@ client.on("messageReactionAdd", async (reaction, user) => {
             user = await user.fetch();
         }
 
-        console.log(reaction);
-
         if (reaction.message.id == "606807344759963688") {
             updatePronouns(reaction, user as discord.User, true);
         }
@@ -177,8 +175,6 @@ client.on("messageReactionAdd", async (reaction, user) => {
 });
 
 client.on("messageReactionRemove", async (reaction, user) => {
-    console.log(reaction);
-
     try {
         if (reaction.partial) {
             reaction = await reaction.fetch();
@@ -186,8 +182,6 @@ client.on("messageReactionRemove", async (reaction, user) => {
         if (user.partial) {
             user = await user.fetch();
         }
-
-        console.log(reaction);
 
         if (reaction.message.id == "606807344759963688") {
             updatePronouns(reaction, user as discord.User, false);
