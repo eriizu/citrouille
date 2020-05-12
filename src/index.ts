@@ -112,40 +112,48 @@ async function updatePronouns(reaction: discord.MessageReaction, user: discord.U
     let rolesCombinations = [
         {
             roleId: "606807806938447872",
+            name: "elle",
             emote: "🌻",
         },
         {
             roleId: "606807957052588042",
+            name: "il",
             emote: "🌸",
         },
         {
             roleId: "606808023108943872",
+            name: "iel",
             emote: "🍀",
         },
         {
             roleId: "606808071834173451",
+            name: "ael",
             emote: "🌼",
         },
     ];
 
-    let roleId: string = null;
+    let roleComb: {
+        roleId: string;
+        name: string;
+        emote: string;
+    } = null;
 
     rolesCombinations.forEach((elem) => {
-        if (elem.emote == reaction.emoji.name) roleId = elem.roleId;
+        if (elem.emote == reaction.emoji.name) roleComb = elem;
     });
 
-    if (!roleId) {
+    if (!roleComb) {
         return;
     }
 
     try {
         let member = await reaction.message.guild.members.fetch(user);
         if (add) {
-            await member.roles.add(roleId);
-            console.log("Added role " + roleId + " to " + user.tag);
+            await member.roles.add(roleComb.roleId);
+            console.log("Added role " + roleComb.name + " to " + user.tag);
         } else {
-            await member.roles.remove(roleId);
-            console.log("Removed role " + roleId + " from " + user.tag);
+            await member.roles.remove(roleComb.roleId);
+            console.log("Removed role " + roleComb.name + " from " + user.tag);
         }
     } catch (err) {
         console.error("failed to update pronouns for: " + user.tag);
