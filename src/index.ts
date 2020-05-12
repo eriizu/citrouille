@@ -40,6 +40,8 @@ try {
 import * as command from "./commands";
 import { isReplyError } from "./ReplyError";
 
+const DEFAULT_PREFIX = "!";
+
 client.on("message", async (msg) => {
     if (msg.partial) {
         console.log("The msg is partial.");
@@ -75,7 +77,7 @@ client.on("message", async (msg) => {
     let split = msg.content.split(" ");
     if (!split.length || !ncmds) {
         return;
-    } else if (split[0].indexOf("!")) {
+    } else if (split[0].indexOf(DEFAULT_PREFIX)) {
         let prefixSplit = split[0].split("!");
         let prefix = prefixSplit[0];
         split[0] = prefixSplit[1] || "";
@@ -106,29 +108,92 @@ client.on("message", async (msg) => {
     }
 });
 
-client.on("messageReactionAdd", async (reaction, user) => {
-    if (reaction.partial) {
-        // If the message this reaction belongs to was removed the fetching might result in an API error, which we need to handle
-        try {
-            await reaction.fetch();
-        } catch {
-            return;
+async function updatePronouns(reaction: discord.MessageReaction, user: discord.User, add: boolean) {
+    let rolesCombinations: [
+        {
+            roleId: "606807806938447872";
+            emote: "🌻";
+        },
+        {
+            roleId: "606807957052588042";
+            emote: "🌸";
+        },
+        {
+            roleId: "606808023108943872";
+            emote: "🍀";
+        },
+        {
+            roleId: "606808071834173451";
+            emote: "🌼";
         }
-    }
-    if (user.partial) {
-        try {
-            await user.fetch();
-        } catch {
-            return;
-        }
+    ];
+
+    let roleId: string = null;
+
+    rolesCombinations.forEach((elem) => {
+        if (elem.emote == reaction.emoji.name) roleId = elem.roleId;
+    });
+
+    if (!roleId) {
+        return;
     }
 
     try {
-        if (reaction.message.author.id == client.user.id) {
-            // await handleQueueJoin(reaction, user as discord.User);
+        let member = await reaction.message.guild.members.fetch(user);
+        if (add) {
+            await member.roles.add(roleId);
+            console.log("Added role " + roleId + " to " + user.tag);
+        } else {
+            await member.roles.remove(roleId);
+            console.log("Removed role " + roleId + " from " + user.tag);
         }
     } catch (err) {
-        if (isReplyError(err)) {
+        console.error("failed to update pronouns for: " + user.tag);
+        console.error(err);
+    }
+}
+
+client.on("messageReactionAdd", async (reaction, user) => {
+    try {
+        if (reaction.partial) {
+            reaction = await reaction.fetch();
+        }
+        if (user.partial) {
+            user = await user.fetch();
+        }
+
+        console.log(reaction);
+
+        if (reaction.message.id == "606807344759963688") {
+            updatePronouns(reaction, user as discord.User, true);
+        }
+    } catch (err) {
+        if (false && isReplyError(err)) {
+            err.discharge(reaction.message);
+        } else {
+            console.error(err);
+        }
+    }
+});
+
+client.on("messageReactionRemove", async (reaction, user) => {
+    console.log(reaction);
+
+    try {
+        if (reaction.partial) {
+            reaction = await reaction.fetch();
+        }
+        if (user.partial) {
+            user = await user.fetch();
+        }
+
+        console.log(reaction);
+
+        if (reaction.message.id == "606807344759963688") {
+            updatePronouns(reaction, user as discord.User, false);
+        }
+    } catch (err) {
+        if (false && isReplyError(err)) {
             err.discharge(reaction.message);
         } else {
             console.error(err);

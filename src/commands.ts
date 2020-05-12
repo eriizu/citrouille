@@ -20,8 +20,6 @@ export interface Command {
  */
 export function predicate(prefix: string, split: string[], cmd: Command): boolean {
     if (split.length >= cmd.scope.length + cmd.argNb) {
-        // console.log(cmd.prefix);
-        // console.log(prefix);
         if (cmd.prefix == prefix) {
             let i = 0;
             for (let toMatch of cmd.scope) {
