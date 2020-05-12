@@ -109,23 +109,23 @@ client.on("message", async (msg) => {
 });
 
 async function updatePronouns(reaction: discord.MessageReaction, user: discord.User, add: boolean) {
-    let rolesCombinations: [
+    let rolesCombinations = [
         {
-            roleId: "606807806938447872";
-            emote: "🌻";
+            roleId: "606807806938447872",
+            emote: "🌻",
         },
         {
-            roleId: "606807957052588042";
-            emote: "🌸";
+            roleId: "606807957052588042",
+            emote: "🌸",
         },
         {
-            roleId: "606808023108943872";
-            emote: "🍀";
+            roleId: "606808023108943872",
+            emote: "🍀",
         },
         {
-            roleId: "606808071834173451";
-            emote: "🌼";
-        }
+            roleId: "606808071834173451",
+            emote: "🌼",
+        },
     ];
 
     let roleId: string = null;
