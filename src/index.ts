@@ -60,10 +60,10 @@ client.on("message", async (msg) => {
     // Currently, only the only thing we look
     if (msg.mentions.members.size) {
         console.log(msg.mentions.members);
-        if (!msg.member.hasPermission("ADMINISTRATOR")) {
+        if (!msg.member.hasPermission("ADMINISTRATOR") || true) {
             try {
                 let prom = Promise.all([
-                    msg.react("710603262239440906"),
+                    msg.react(msg.guild.emojis.resolve("710603262239440906")),
                     msg.react("❌"),
                     msg.react("⚠️"),
                     msg.react("🚨"),
