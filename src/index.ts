@@ -60,7 +60,7 @@ client.on("message", async (msg) => {
     // Currently, only the only thing we look
     if (msg.mentions.members.size) {
         console.log(msg.mentions.members);
-        if (!msg.member.hasPermission("ADMINISTRATOR") || true) {
+        if (!msg.member.hasPermission("ADMINISTRATOR")) {
             try {
                 let emoji = msg.guild.emojis.cache.find((emoji) => emoji.name === "ban");
 
