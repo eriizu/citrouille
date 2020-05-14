@@ -63,7 +63,7 @@ client.on("message", async (msg) => {
         if (!msg.member.hasPermission("ADMINISTRATOR") || true) {
             try {
                 let prom = Promise.all([
-                    msg.react(msg.guild.emojis.resolve("710603262239440906")),
+                    msg.react(msg.guild.emojis.resolveID("710603262239440906")),
                     msg.react("❌"),
                     msg.react("⚠️"),
                     msg.react("🚨"),
