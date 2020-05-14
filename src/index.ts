@@ -62,7 +62,12 @@ client.on("message", async (msg) => {
         console.log(msg.mentions.members);
         if (!msg.member.hasPermission("ADMINISTRATOR")) {
             try {
-                let prom = Promise.all([msg.react("❌"), msg.react("⚠️"), msg.react("🚨")]);
+                let prom = Promise.all([
+                    msg.react("710603262239440906"),
+                    msg.react("❌"),
+                    msg.react("⚠️"),
+                    msg.react("🚨"),
+                ]);
                 await msg.reply(
                     `vous n'avez pas le droit de taguer sur ce serveur !!\n\nMerci d'aller voir à nouveau le règlement.\nLorsque vous citez quelqu'un, pensez à retirer la mention que discord ajoute dans votre message.\nIl s'agit seulement d'un avertissement, faites attention par la suite.`
                 );
@@ -88,11 +93,8 @@ client.on("message", async (msg) => {
         // }
 
         for (let cmd of ncmds) {
-            if (command.predicate(prefix, split, cmd)) {
-                let nbToShift = cmd.scope.length;
-                while (nbToShift--) {
-                    split.shift();
-                }
+            if (command.predicate(split, cmd)) {
+                split.shift();
                 try {
                     await cmd.handler(msg, split);
                 } catch (err) {

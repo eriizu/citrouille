@@ -7,8 +7,8 @@ export interface CommandModule {
 }
 
 export interface Command {
-    prefix?: string;
-    scope: string[];
+    id: string;
+    aliases?: string[];
     argNb: number;
     stopOnArgMissmatch?: boolean;
     handler: (msg: discord.Message | discord.PartialMessage, splitMsg: string[]) => Promise<void>;
@@ -18,22 +18,32 @@ export interface Command {
 /**
  * Indicates a match between a command and the message inputed.
  */
-export function predicate(prefix: string, split: string[], cmd: Command): boolean {
-    if (split.length >= cmd.scope.length + cmd.argNb) {
-        if (cmd.prefix == prefix) {
-            let i = 0;
-            for (let toMatch of cmd.scope) {
-                if (toMatch != split[i++]) return false;
-            }
-            return true;
+export function predicate(split: string[], cmd: Command): boolean {
+    if (!cmd.aliases || !cmd.aliases.length) return true;
+
+    if (split.length && split[0]) {
+        for (let alias of cmd.aliases) {
+            if (alias == split[0] && split.length - 1 >= cmd.argNb) return true;
         }
-    } else {
-        return false;
     }
+
+    return false;
+
+    // if (split.length >= cmd.scope.length + cmd.argNb) {
+    //     if (cmd.prefix == prefix) {
+    //         let i = 0;
+    //         for (let toMatch of cmd.scope) {
+    //             if (toMatch != split[i++]) return false;
+    //         }
+    //         return true;
+    //     }
+    // } else {
+    //     return false;
+    // }
 }
 
 export function isCommand(x: any): x is Command {
-    return x.scope && x.argNb !== undefined && x.handler;
+    return x.id && x.argNb !== undefined && typeof x.handler === "function";
 }
 
 export function isCommandModule(x: any): x is CommandModule {
