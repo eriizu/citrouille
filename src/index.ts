@@ -108,97 +108,36 @@ client.on("message", async (msg) => {
     }
 });
 
-async function updatePronouns(reaction: discord.MessageReaction, user: discord.User, add: boolean) {
-    let rolesCombinations = [
-        {
-            roleId: "606807806938447872",
-            name: "elle",
-            emote: "🌻",
-        },
-        {
-            roleId: "606807957052588042",
-            name: "il",
-            emote: "🌸",
-        },
-        {
-            roleId: "606808023108943872",
-            name: "iel",
-            emote: "🍀",
-        },
-        {
-            roleId: "606808071834173451",
-            name: "ael",
-            emote: "🌼",
-        },
-    ];
+import * as pronouns from "./pronouns";
 
-    let roleComb: {
-        roleId: string;
-        name: string;
-        emote: string;
-    } = null;
-
-    rolesCombinations.forEach((elem) => {
-        if (elem.emote == reaction.emoji.name) roleComb = elem;
-    });
-
-    if (!roleComb) {
-        return;
-    }
-
+async function reactionProcess(
+    reaction: discord.MessageReaction,
+    user: discord.User | discord.PartialUser,
+    add: boolean
+) {
     try {
-        let member = await reaction.message.guild.members.fetch(user);
-        if (add) {
-            await member.roles.add(roleComb.roleId);
-            console.log("Added role " + roleComb.name + " to " + user.tag);
-        } else {
-            await member.roles.remove(roleComb.roleId);
-            console.log("Removed role " + roleComb.name + " from " + user.tag);
+        if (reaction.partial) {
+            reaction = await reaction.fetch();
+        }
+        if (user.partial) {
+            user = await user.fetch();
+        }
+
+        if (reaction.message.id == "606807344759963688") {
+            pronouns.processReaction(reaction, user as discord.User, add);
         }
     } catch (err) {
-        console.error("failed to update pronouns for: " + user.tag);
-        console.error(err);
+        if (false && isReplyError(err)) {
+            err.discharge(reaction.message);
+        } else {
+            console.error(err);
+        }
     }
 }
 
 client.on("messageReactionAdd", async (reaction, user) => {
-    try {
-        if (reaction.partial) {
-            reaction = await reaction.fetch();
-        }
-        if (user.partial) {
-            user = await user.fetch();
-        }
-
-        if (reaction.message.id == "606807344759963688") {
-            updatePronouns(reaction, user as discord.User, true);
-        }
-    } catch (err) {
-        if (false && isReplyError(err)) {
-            err.discharge(reaction.message);
-        } else {
-            console.error(err);
-        }
-    }
+    reactionProcess(reaction, user, true);
 });
-
 client.on("messageReactionRemove", async (reaction, user) => {
-    try {
-        if (reaction.partial) {
-            reaction = await reaction.fetch();
-        }
-        if (user.partial) {
-            user = await user.fetch();
-        }
-
-        if (reaction.message.id == "606807344759963688") {
-            updatePronouns(reaction, user as discord.User, false);
-        }
-    } catch (err) {
-        if (false && isReplyError(err)) {
-            err.discharge(reaction.message);
-        } else {
-            console.error(err);
-        }
-    }
+    reactionProcess(reaction, user, false);
 });
