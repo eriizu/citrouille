@@ -73,6 +73,7 @@ client.on("message", async (msg) => {
                 await msg.reply(
                     `vous n'avez pas le droit de taguer sur ce serveur !!\n\nMerci d'aller voir à nouveau le règlement.\nLorsque vous citez quelqu'un, pensez à retirer la mention que discord ajoute dans votre message.\nIl s'agit seulement d'un avertissement, faites attention par la suite.`
                 );
+                await msg.reply(emoji);
                 await prom;
                 return;
             } catch (err) {
