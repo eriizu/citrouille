@@ -62,8 +62,10 @@ client.on("message", async (msg) => {
         console.log(msg.mentions.members);
         if (!msg.member.hasPermission("ADMINISTRATOR") || true) {
             try {
+                let emoji = msg.guild.emojis.cache.find((emoji) => emoji.name === "ban");
+
                 let prom = Promise.all([
-                    msg.react(msg.guild.emojis.resolveID("710603262239440906")),
+                    msg.react(emoji),
                     msg.react("❌"),
                     msg.react("⚠️"),
                     msg.react("🚨"),
