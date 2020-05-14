@@ -3,7 +3,6 @@ import * as discord from "discord.js";
 export interface CommandModule {
     name: string;
     commands: Command[];
-    prefix?: string;
 }
 
 export interface Command {
