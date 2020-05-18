@@ -29,15 +29,19 @@ client.login(process.env.CITROUILLE_DISCORD_TOKEN);
 //     .catch(console.error);
 
 import { loadCommands } from "./loadCommands";
+import * as handler from "./Handler";
 
-let ncmds: command.Command[];
+let handlers: handler.Handler[];
+let watchers: handler.Handler[];
 try {
-    ncmds = loadCommands();
+    let res = loadCommands();
+    handlers = res.handlers;
+    watchers = res.watchers;
 } catch {
-    ncmds = null;
+    handlers = null;
+    watchers = null;
 }
 
-import * as command from "./commands";
 import { isReplyError } from "./ReplyError";
 
 const DEFAULT_PREFIX = "!";
@@ -56,33 +60,21 @@ client.on("message", async (msg) => {
     // Ignore messages from self or another bot.
     if (msg.author.bot) return;
 
-    // Pre command handlers
-    // Currently, only the only thing we look
-    if (msg.mentions.members.size) {
-        if (!msg.member.hasPermission("ADMINISTRATOR")) {
-            try {
-                let emoji = msg.guild.emojis.cache.find((emoji) => emoji.name === "ban");
+    let split = msg.content.split(" ");
 
-                let prom = Promise.all([
-                    msg.react(emoji),
-                    msg.react("❌"),
-                    msg.react("⚠️"),
-                    msg.react("🚨"),
-                ]);
-                await msg.channel.send(`${emoji}${emoji}${emoji}`);
-                await msg.reply(
-                    `vous n'avez pas le droit de taguer sur ce serveur !!\n\nMerci d'aller voir à nouveau le règlement.\nLorsque vous citez quelqu'un, pensez à retirer la mention que Discord ajoute dans votre message.\nIl s'agit seulement d'un avertissement, faites attention par la suite.`
-                );
-                await prom;
-                return;
-            } catch (err) {
-                console.error(err);
-            }
+    // Pre command handlers
+    for (let watcher of watchers) {
+        let res: handler.Result;
+        try {
+            res = await watcher.exec(msg, split);
+        } catch (err) {
+            console.error(err);
+            return;
         }
+        if (res == handler.Result.END) return;
     }
 
-    let split = msg.content.split(" ");
-    if (!split.length || !ncmds) {
+    if (!split.length || !handlers) {
         return;
     } else if (split[0].indexOf(DEFAULT_PREFIX)) {
         let prefixSplit = split[0].split("!");
@@ -94,19 +86,21 @@ client.on("message", async (msg) => {
         //     return;
         // }
 
-        for (let cmd of ncmds) {
-            if (command.predicate(split, cmd)) {
+        for (let hdl of handlers) {
+            if (handler.predicate(split, hdl)) {
                 split.shift();
+                let res: handler.Result;
                 try {
-                    await cmd.handler(msg, split);
+                    res = await hdl.exec(msg, split);
                 } catch (err) {
                     if (isReplyError(err)) {
                         err.discharge(msg);
                     } else {
                         console.error(err);
                     }
+                    return;
                 }
-                return;
+                if (res === handler.Result.END) return;
             }
         }
     }

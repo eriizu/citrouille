@@ -1,23 +1,28 @@
 import * as discord from "discord.js";
 
-export interface CommandModule {
+export interface HandlerModule {
     name: string;
-    commands: Command[];
+    handlers: Handler[];
 }
 
-export interface Command {
+export enum Result {
+    END,
+    CONTINUE,
+}
+
+export interface Handler {
     id: string;
     aliases?: string[];
     argNb: number;
     stopOnArgMissmatch?: boolean;
-    handler: (msg: discord.Message | discord.PartialMessage, splitMsg: string[]) => Promise<void>;
+    exec: (msg: discord.Message | discord.PartialMessage, splitMsg: string[]) => Promise<Result>;
     helper?: Function;
 }
 
 /**
  * Indicates a match between a command and the message inputed.
  */
-export function predicate(split: string[], cmd: Command): boolean {
+export function predicate(split: string[], cmd: Handler): boolean {
     if (!cmd.aliases || !cmd.aliases.length) return true;
 
     if (split.length && split[0]) {
@@ -41,10 +46,10 @@ export function predicate(split: string[], cmd: Command): boolean {
     // }
 }
 
-export function isCommand(x: any): x is Command {
-    return x.id && x.argNb !== undefined && typeof x.handler === "function";
+export function isHandler(x: any): x is Handler {
+    return x.id && x.argNb !== undefined && typeof x.exec === "function";
 }
 
-export function isCommandModule(x: any): x is CommandModule {
-    return Array.isArray(x.commands);
+export function isHandlerModule(x: any): x is HandlerModule {
+    return Array.isArray(x.handlers);
 }
