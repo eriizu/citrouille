@@ -5,15 +5,15 @@ async function warnOnMention(msg: discord.Message | discord.PartialMessage, spli
     // if (msg.mentions.members.size && !msg.member.hasPermission("ADMINISTRATOR")) {
     if (msg.mentions.members.size) {
         try {
-            // let emoji = msg.guild.emojis.cache.find((emoji) => emoji.name === "ban");
+            let emoji = msg.guild.emojis.cache.find((emoji) => emoji.id === "712056878531739678");
+            await msg.react(emoji);
+            await msg.channel.send(`${emoji}${emoji}${emoji}`);
+        } catch (err) {
+            console.warn(err);
+        }
 
-            let prom = Promise.all([
-                // msg.react(emoji),
-                msg.react("❌"),
-                msg.react("⚠️"),
-                msg.react("🚨"),
-            ]);
-            // await msg.channel.send(`${emoji}${emoji}${emoji}`);
+        try {
+            let prom = Promise.all([msg.react("❌"), msg.react("⚠️"), msg.react("🚨")]);
             await msg.reply(
                 `vous n'avez pas le droit de taguer sur ce serveur !!\n\nMerci d'aller voir à nouveau le règlement.\nLorsque vous citez quelqu'un, pensez à retirer la mention que Discord ajoute dans votre message.\nIl s'agit seulement d'un avertissement, faites attention par la suite.`
             );
