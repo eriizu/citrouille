@@ -5,7 +5,9 @@ async function warnOnMention(msg: discord.Message | discord.PartialMessage, spli
     // if (msg.mentions.members.size && !msg.member.hasPermission("ADMINISTRATOR")) {
     if (msg.mentions.members.size) {
         try {
-            let emoji = msg.guild.emojis.cache.find((emoji) => emoji.id === "712056878531739678");
+            let emoji = msg.guild.emojis.cache.find((emoji) => {
+                return emoji.id === "519852990119673871";
+            });
             await msg.react(emoji);
             await msg.channel.send(`${emoji}${emoji}${emoji}`);
         } catch (err) {
