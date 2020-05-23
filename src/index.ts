@@ -6,7 +6,7 @@ client.on("ready", () => {
     console.log("Discord OK");
     client.user
         .setPresence({
-            activity: { name: 'faites : "!aled"' },
+            activity: { name: 'faites : "!aled"', type: "PLAYING" },
         })
         .catch(console.warn);
 });
@@ -14,19 +14,20 @@ client.login(process.env.CITROUILLE_DISCORD_TOKEN);
 
 // Commented as no database is needed for this bot: yet.
 
-// import * as mongoose from "mongoose";
+import * as mongoose from "mongoose";
 
-// mongoose
-//     .connect(process.env.MONGO_URL || `mongodb://root:example@localhost/citrouille?authSource=admin`, {
-//         useNewUrlParser: true,
-//         useCreateIndex: true,
-//         useUnifiedTopology: true,
-//         useFindAndModify: false,
-//     })
-//     .then(() => {
-//         console.log("Mongo OK");
-//     })
-//     .catch(console.error);
+mongoose
+    .connect(process.env.MONGO_URL || `mongodb://root:example@localhost/citrouille`, {
+        useNewUrlParser: true,
+        useCreateIndex: true,
+        useUnifiedTopology: true,
+        useFindAndModify: false,
+        authSource: "admin",
+    })
+    .then(() => {
+        console.log("Mongo OK");
+    })
+    .catch(console.error);
 
 import { loadCommands } from "./loadCommands";
 import * as handler from "./Handler";
