@@ -3,6 +3,10 @@ import * as mongoose from "mongoose";
 import * as discord from "discord.js";
 
 beforeAll(async () => {
+    console.warn(
+        process.env.MONGO_URL ||
+            `mongodb://root:example@localhost/citrouille-testing?authSource=admin`
+    );
     return mongoose.connect(
         process.env.MONGO_URL ||
             `mongodb://root:example@localhost/citrouille-testing?authSource=admin`,
@@ -129,4 +133,31 @@ it("should validate by mongo id", async () => {
     let fetchedPic = await picture.db.findById(pic._id);
     expect(fetchedPic.link).toEqual("test-link");
     expect(fetchedPic.validated).toEqual(true);
+});
+
+it.skip("should delete by album", async () => {
+    await picture.db.new("patate", "test-link", {
+        id: "1234",
+        tag: "toto#1234",
+    });
+    await picture.db.new("voiture", "test-link2", {
+        id: "1234",
+        tag: "toto#1234",
+    });
+    await picture.db.new("patate", "test-link3", {
+        id: "1234",
+        tag: "toto#1234",
+    });
+
+    await picture.db.markAsValidated("patate");
+
+    let pics = await picture.db.find({});
+    expect(pics.length).toEqual(3);
+    pics.forEach((pic) => {
+        if (pic.album != "voiture") expect(pic.validated).toEqual(true);
+        else expect(pic.validated).toEqual(false);
+    });
+
+    let res = await picture.db.delete([pics[0]._id, pics[1]._id]);
+    expect(res.nDelete).toEqual(2);
 });

@@ -35,11 +35,57 @@ async function handlerSubmit(
         let prefix: string;
         if (nCompleted == msg.attachments.size) prefix = ":green_circle: ";
         msg.channel
-            .send(`${prefix}J'ai sauvegardé ${nCompleted}/${msg.attachments.size} images.`)
+            .send(`${prefix}J'ai sauvegardé ${nCompleted}/${msg.attachments.size} image·s.`)
             .catch(console.error);
     } else {
         msg.channel.send("Seulement un admin peut ajouter des images.").catch(console.error);
     }
+    return handler.Result.END;
+}
+
+async function handlerList(msg: discord.Message, splitMsg: Array<string>): Promise<handler.Result> {
+    try {
+        let pictures = await picture.db.find({ album: splitMsg[0], validated: true }, { link: 1 });
+
+        assert(pictures);
+
+        if (!pictures.length) {
+            msg.channel.send("Je n'ai pas trouvé d'images.");
+        } else {
+            let builder: string[] = ["J'ai trouvé les images suivantes :"];
+
+            pictures.forEach((pic) => {
+                builder.push("- " + pic._id + " " + pic.link);
+            });
+
+            builder.push(
+                "Vous pouvez supprimer une image en faisant `!picdelete [id ou lien de l'image]` en tant qu'administateur."
+            );
+
+            msg.channel.send(builder.join("\n"));
+        }
+    } catch (err) {
+        console.error("Failed to list images in album.");
+        console.error(err);
+    }
+
+    return handler.Result.END;
+}
+
+async function handlerDelete(
+    msg: discord.Message,
+    splitMsg: Array<string>
+): Promise<handler.Result> {
+    try {
+        let res = await picture.db.delete(splitMsg);
+        if (res.nDeleted) {
+            res.channel.send("J'ai supprimé " + res.nDeleted + " image·s correspondante·s");
+        }
+    } catch (err) {
+        console.error("Failure when deleting images.");
+        console.error(err);
+    }
+
     return handler.Result.END;
 }
 
@@ -79,6 +125,23 @@ let mod: handler.HandlerModule = {
             argNb: 1,
             aliases: ["submit"],
             exec: handlerSubmit,
+        },
+        {
+            id: "list",
+            stopOnArgMissmatch: true,
+            usage: "**!list [nom d'album]**\n(Pensez à remplacer les crochets ET leur contenu.).",
+            argNb: 1,
+            aliases: ["list"],
+            exec: handlerList,
+        },
+        {
+            id: "delete",
+            stopOnArgMissmatch: true,
+            usage:
+                "**!delete [id ou lien de photo]**\n(Pensez à remplacer les crochets ET leur contenu.).",
+            argNb: 1,
+            aliases: ["delete"],
+            exec: handlerList,
         },
         {
             id: "random picture sampler",

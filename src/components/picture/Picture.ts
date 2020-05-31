@@ -71,8 +71,16 @@ Schema.static("markAsValidated", async function (this: IPictureModel, criteria: 
 });
 
 // Deletes one or more images.
-Schema.static("delete", async function (this: IPictureModel, criteria: string) {
-    let res = await this.deleteMany(generateCondition(criteria));
+Schema.static("delete", async function (this: IPictureModel, criterion: string[]) {
+    let res: any;
+    if (criterion.length == 1) res = await this.deleteMany(generateCondition(criterion[0]));
+    else {
+        let queryBuiler: any[] = [];
+        criterion.forEach((crit) => {
+            queryBuiler.push(generateCondition(crit));
+        });
+        res = await this.deleteMany({ $or: queryBuiler });
+    }
     assert(res.ok);
     return res;
 });
@@ -92,7 +100,7 @@ export interface IPictureModel extends mongoose.Model<IPictureDocument> {
         validated?: boolean
     ) => Promise<IPictureDocument>;
     markAsValidated: (this: IPictureModel, criteria: string) => Promise<any>;
-    delete: (this: IPictureModel, criteria: string) => Promise<any>;
+    delete: (this: IPictureModel, criterion: string[]) => Promise<any>;
     getNotValidated: (this: IPictureModel) => Promise<Array<IPictureDocument>>;
 }
 
