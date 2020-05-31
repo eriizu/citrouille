@@ -55,7 +55,7 @@ async function handlerList(msg: discord.Message, splitMsg: Array<string>): Promi
             let builder: string[] = ["J'ai trouvé les images suivantes :"];
 
             pictures.forEach((pic) => {
-                builder.push("- " + pic._id + " " + pic.link);
+                builder.push("- " + pic._id + " `" + pic.link + "`");
             });
 
             builder.push(
@@ -76,14 +76,20 @@ async function handlerDelete(
     msg: discord.Message,
     splitMsg: Array<string>
 ): Promise<handler.Result> {
-    try {
-        let res = await picture.db.delete(splitMsg);
-        if (res.nDeleted) {
-            res.channel.send("J'ai supprimé " + res.nDeleted + " image·s correspondante·s");
+    if (msg.member.hasPermission("ADMINISTRATOR")) {
+        try {
+            let res = await picture.db.delete(splitMsg);
+            if (res.deletedCount) {
+                msg.channel.send("J'ai supprimé " + res.deletedCount + " image·s correspondante·s");
+            } else {
+                msg.channel.send("Je n'ai pas trouvé d'images correspondantes.");
+            }
+        } catch (err) {
+            console.error("Failure when deleting images.");
+            console.error(err);
         }
-    } catch (err) {
-        console.error("Failure when deleting images.");
-        console.error(err);
+    } else {
+        msg.channel.send("Seul un admin peut supprimer une image.");
     }
 
     return handler.Result.END;
@@ -121,9 +127,9 @@ let mod: handler.HandlerModule = {
         {
             id: "submit",
             stopOnArgMissmatch: true,
-            usage: "**!submit [nom d'album]**\n(Pensez à remplacer les crochets ET leur contenu.).",
+            usage: "**!add [nom d'album]**\n(Pensez à remplacer les crochets ET leur contenu.).",
             argNb: 1,
-            aliases: ["submit"],
+            aliases: ["add"],
             exec: handlerSubmit,
         },
         {
@@ -141,7 +147,7 @@ let mod: handler.HandlerModule = {
                 "**!delete [id ou lien de photo]**\n(Pensez à remplacer les crochets ET leur contenu.).",
             argNb: 1,
             aliases: ["delete"],
-            exec: handlerList,
+            exec: handlerDelete,
         },
         {
             id: "random picture sampler",
