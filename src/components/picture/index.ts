@@ -1,1 +1,1 @@
-export { db } from "./Picture";
+export { db, IPictureDocument } from "./Picture";

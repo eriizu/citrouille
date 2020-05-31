@@ -1,7 +1,7 @@
 import * as discord from "discord.js";
 import * as handler from "../Handler";
 
-async function warnOnMention(msg: discord.Message | discord.PartialMessage, splitMsg: string[]) {
+async function warnOnMention(msg: discord.Message, splitMsg: string[]) {
     if (msg.mentions.members.size && !msg.member.hasPermission("ADMINISTRATOR")) {
         try {
             let emoji = msg.guild.emojis.cache.find((emoji) => {

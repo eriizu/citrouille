@@ -38,7 +38,8 @@ try {
     let res = loadCommands();
     handlers = res.handlers;
     watchers = res.watchers;
-} catch {
+} catch (err) {
+    console.error(err);
     handlers = null;
     watchers = null;
 }
@@ -64,44 +65,50 @@ client.on("message", async (msg) => {
     let split = msg.content.split(" ");
 
     // Pre command handlers
-    for (let watcher of watchers) {
-        let res: handler.Result;
-        try {
-            res = await watcher.exec(msg, split);
-        } catch (err) {
-            console.error(err);
-            return;
+    if (watchers)
+        for (let watcher of watchers) {
+            let res: handler.Result;
+            try {
+                res = await watcher.exec(msg, split);
+            } catch (err) {
+                console.error(err);
+                return;
+            }
+            if (res == handler.Result.END) return;
         }
-        if (res == handler.Result.END) return;
+
+    let isCmd = false;
+    if (split.length && split[0].indexOf(DEFAULT_PREFIX) != -1) {
+        let prefixSplit = split[0].split("!");
+        split[0] = prefixSplit[1] || "";
+        isCmd = true;
     }
 
-    if (!split.length || !handlers) {
-        return;
-    } else if (split[0].indexOf(DEFAULT_PREFIX)) {
-        let prefixSplit = split[0].split("!");
-        let prefix = prefixSplit[0];
-        split[0] = prefixSplit[1] || "";
-
-        // Commented as empty prefixes do not cause any issue with this particular bot.
-        // if (!prefix || !prefix.length) {
-        //     return;
-        // }
-
+    if (handlers && isCmd && split[0] && split[0].length) {
         for (let hdl of handlers) {
             if (handler.predicate(split, hdl)) {
-                split.shift();
-                let res: handler.Result;
-                try {
-                    res = await hdl.exec(msg, split);
-                } catch (err) {
-                    if (isReplyError(err)) {
-                        err.discharge(msg);
-                    } else {
-                        console.error(err);
+                if (handler.checkArgNumber(split, hdl)) {
+                    split.shift();
+                    let res: handler.Result;
+                    try {
+                        res = await hdl.exec(msg, split);
+                    } catch (err) {
+                        if (isReplyError(err)) {
+                            err.discharge(msg);
+                        } else {
+                            console.error(err);
+                        }
+                        return;
                     }
+                    if (res === handler.Result.END) return;
+                } else if (hdl.stopOnArgMissmatch) {
+                    if (hdl.usage) msg.channel.send("Utilisation de la commande :\n" + hdl.usage);
+                    else
+                        msg.channel.send(
+                            `:red_circle: Je m'attendais à ${hdl.argNb} argument·s pour la commande ${hdl.aliases[0]}.`
+                        );
                     return;
                 }
-                if (res === handler.Result.END) return;
             }
         }
     }

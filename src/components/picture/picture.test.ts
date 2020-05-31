@@ -24,11 +24,10 @@ afterEach(async () => {
 });
 
 it("should create a picture", async () => {
-    let pic = await picture.db.new("test-link", {
-        partial: true,
+    let pic = await picture.db.new("patate", "test-link", {
         id: "1234",
         tag: "toto#1234",
-    } as discord.PartialUser);
+    });
 
     expect(pic.link).toEqual("test-link");
     expect(pic.validated).toEqual(false);
@@ -39,11 +38,10 @@ it("should create a picture", async () => {
 });
 
 it("should validate by link", async () => {
-    let pic = await picture.db.new("test-link", {
-        partial: true,
+    let pic = await picture.db.new("patate", "test-link", {
         id: "1234",
         tag: "toto#1234",
-    } as discord.PartialUser);
+    });
 
     expect(pic.link).toEqual("test-link");
     expect(pic.validated).toEqual(false);
@@ -56,16 +54,14 @@ it("should validate by link", async () => {
 });
 
 it("should validate by tag", async () => {
-    await picture.db.new("test-link", {
-        partial: true,
+    await picture.db.new("patate", "test-link", {
         id: "1234",
         tag: "toto#1234",
-    } as discord.PartialUser);
-    await picture.db.new("test-link2", {
-        partial: true,
+    });
+    await picture.db.new("patate", "test-link2", {
         id: "1234",
         tag: "toto#1234",
-    } as discord.PartialUser);
+    });
 
     await picture.db.markAsValidated("toto#1234");
 
@@ -77,16 +73,14 @@ it("should validate by tag", async () => {
 });
 
 it("should validate by user id", async () => {
-    await picture.db.new("test-link", {
-        partial: true,
+    await picture.db.new("patate", "test-link", {
         id: "1234",
         tag: "toto#1234",
-    } as discord.PartialUser);
-    await picture.db.new("test-link2", {
-        partial: true,
+    });
+    await picture.db.new("patate", "test-link2", {
         id: "1234",
         tag: "toto#1234",
-    } as discord.PartialUser);
+    });
 
     await picture.db.markAsValidated("1234");
 
@@ -97,12 +91,35 @@ it("should validate by user id", async () => {
     });
 });
 
-it("should validate by mongo id", async () => {
-    let pic = await picture.db.new("test-link", {
-        partial: true,
+it("should validate by album", async () => {
+    await picture.db.new("patate", "test-link", {
         id: "1234",
         tag: "toto#1234",
-    } as discord.PartialUser);
+    });
+    await picture.db.new("voiture", "test-link2", {
+        id: "1234",
+        tag: "toto#1234",
+    });
+    await picture.db.new("patate", "test-link3", {
+        id: "1234",
+        tag: "toto#1234",
+    });
+
+    await picture.db.markAsValidated("patate");
+
+    let pics = await picture.db.find({});
+    expect(pics.length).toEqual(3);
+    pics.forEach((pic) => {
+        if (pic.album != "voiture") expect(pic.validated).toEqual(true);
+        else expect(pic.validated).toEqual(false);
+    });
+});
+
+it("should validate by mongo id", async () => {
+    let pic = await picture.db.new("patate", "test-link", {
+        id: "1234",
+        tag: "toto#1234",
+    });
 
     expect(pic.link).toEqual("test-link");
     expect(pic.validated).toEqual(false);

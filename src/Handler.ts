@@ -15,7 +15,8 @@ export interface Handler {
     aliases?: string[];
     argNb: number;
     stopOnArgMissmatch?: boolean;
-    exec: (msg: discord.Message | discord.PartialMessage, splitMsg: string[]) => Promise<Result>;
+    usage?: string;
+    exec: (msg: discord.Message, splitMsg: string[]) => Promise<Result>;
     helper?: Function;
 }
 
@@ -27,7 +28,7 @@ export function predicate(split: string[], cmd: Handler): boolean {
 
     if (split.length && split[0]) {
         for (let alias of cmd.aliases) {
-            if (alias == split[0] && split.length - 1 >= cmd.argNb) return true;
+            if (alias == split[0]) return true;
         }
     }
 
@@ -44,6 +45,13 @@ export function predicate(split: string[], cmd: Handler): boolean {
     // } else {
     //     return false;
     // }
+}
+
+/**
+ * Indicates a match between a command and the message inputed.
+ */
+export function checkArgNumber(split: string[], cmd: Handler): boolean {
+    return cmd.argNb == 0 || split.length - 1 >= cmd.argNb;
 }
 
 export function isHandler(x: any): x is Handler {
