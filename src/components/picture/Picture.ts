@@ -37,7 +37,7 @@ Schema.static("new", function (
     album: string,
     link: string,
     author: { id: string; tag: string },
-    validated?: boolean
+    validated: boolean = false
 ) {
     return this.create({ album, link, author: { id: author.id, tag: author.tag }, validated });
 });
@@ -46,7 +46,15 @@ Schema.static("new", function (
 function generateCondition(criteria: string) {
     try {
         let objid = new mongoose.Types.ObjectId(criteria);
-        return { _id: objid };
+        return {
+            $or: [
+                { _id: objid },
+                { link: criteria },
+                { album: criteria },
+                { "author.id": criteria },
+                { "author.tag": criteria },
+            ],
+        };
     } catch {
         return {
             $or: [
@@ -63,7 +71,7 @@ function generateCondition(criteria: string) {
 Schema.static("markAsValidated", async function (this: IPictureModel, criteria: string) {
     let res = await this.updateMany(
         generateCondition(criteria),
-        { validated: true },
+        { $set: { validated: true } },
         { upsert: false, multi: true, timestamps: true }
     );
     assert(res.ok);
