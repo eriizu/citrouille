@@ -121,6 +121,28 @@ async function handlerPictureSample(msg: discord.Message, split: Array<string>) 
     return handler.Result.CONTINUE;
 }
 
+async function aledHandler(msg: discord.Message, split: Array<string>) {
+    try {
+        let albums: string[] = await picture.db.distinct("album");
+
+        if (!albums || !albums.length) {
+            msg.channel.send("Je n'ai aucune commande associée à des images à vous montrer.");
+            return handler.Result.END;
+        } else {
+            let builder: string[] = [];
+            builder.push("**Commandes d'images :**");
+            albums.forEach((name) => {
+                builder.push(`- !${name}`);
+            });
+
+            msg.channel.send(builder.join("\n"));
+        }
+    } catch (err) {
+        console.error("Failed to get album names");
+        console.error(err);
+    }
+}
+
 let mod: handler.HandlerModule = {
     name: "picture",
     handlers: [
@@ -148,6 +170,13 @@ let mod: handler.HandlerModule = {
             argNb: 1,
             aliases: ["delete"],
             exec: handlerDelete,
+        },
+        {
+            id: "aled",
+            stopOnArgMissmatch: false,
+            argNb: 0,
+            aliases: ["aled"],
+            exec: aledHandler,
         },
         {
             id: "random picture sampler",

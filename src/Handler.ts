@@ -3,6 +3,7 @@ import * as discord from "discord.js";
 export interface HandlerModule {
     name: string;
     handlers: Handler[];
+    // helper?: (msg: discord.Message) => Promise<string[]>;
 }
 
 export enum Result {
@@ -17,7 +18,6 @@ export interface Handler {
     stopOnArgMissmatch?: boolean;
     usage?: string;
     exec: (msg: discord.Message, splitMsg: string[]) => Promise<Result>;
-    helper?: Function;
 }
 
 /**
