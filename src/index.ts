@@ -80,7 +80,7 @@ client.on("message", async (msg) => {
     let isCmd = false;
     if (split.length && split[0].indexOf(DEFAULT_PREFIX) != -1) {
         let prefixSplit = split[0].split("!");
-        if (split[0].length) return;
+        if (prefixSplit[0].length) return;
         split[0] = prefixSplit[1] || "";
         isCmd = true;
     }
