@@ -1,8 +1,16 @@
 import * as discord from "discord.js";
 import * as handler from "../Handler";
 
+function wasJuliaMentioned(msg: discord.Message) {
+    for (let user of msg.mentions.users.array()) {
+        if (user.id == "350629483042177025") return true;
+    }
+    return false;
+}
+
 async function warnOnMention(msg: discord.Message, splitMsg: string[]) {
-    if (msg.mentions.members.size && !msg.member.hasPermission("ADMINISTRATOR")) {
+    // if (wasJuliaMentioned(msg)) {
+    if (wasJuliaMentioned(msg) && !msg.member.hasPermission("ADMINISTRATOR")) {
         try {
             let emoji = msg.guild.emojis.cache.find((emoji) => {
                 return emoji.id === "519852990119673871";
@@ -16,7 +24,7 @@ async function warnOnMention(msg: discord.Message, splitMsg: string[]) {
         try {
             let prom = Promise.all([msg.react("❌"), msg.react("⚠️"), msg.react("🚨")]);
             await msg.reply(
-                `vous n'avez pas le droit de taguer sur ce serveur !!\n\nMerci d'aller voir à nouveau le règlement.\nLorsque vous citez quelqu'un, pensez à retirer la mention que Discord ajoute dans votre message.\nIl s'agit seulement d'un avertissement, faites attention par la suite.`
+                `vous n'avez pas le droit de taguer Julia !!\n\nMerci d'aller voir à nouveau le règlement.\nLorsque vous la citez, pensez à retirer la mention que Discord ajoute dans votre message.\nIl s'agit seulement d'un avertissement, faites attention par la suite.`
             );
             await prom;
         } catch (err) {
